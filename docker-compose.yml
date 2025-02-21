@@ -1,0 +1,51 @@
+name: wppai
+
+services:
+  postgresql:
+    env_file:
+      - .env
+    image: bitnami/postgresql:latest
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    expose:
+      - 5432
+    volumes:
+      - postgres_db:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=${DB_USERNAME}
+      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
+      - POSTGRESQL_DATABASE=${DB_DATABASE}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: bitnami/redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/bitnami/redis/data
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  waha:
+    image: devlikeapro/waha:latest
+    ports:
+      - "3001:3000" # WAHA acessível em localhost:3001
+    volumes:
+      - ./sessions:/app/.sessions
+      - ./media:/app/.media
+    environment:
+      - WAHA_WEBHOOK_URL=http://localhost:3000/webhook # Aponta para o host
+
+volumes:
+  redis_data:
+  postgres_db:
