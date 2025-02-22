@@ -22,7 +22,7 @@ kernel.post("/webhook", async (request, reply) => {
     {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer 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`,
+        Authorization: `Bearer API KEY`,
       },
     }
   );
